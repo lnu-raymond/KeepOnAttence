@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leevan.mapper.AttendanceMapper">
+
+    <resultMap id="attendanceRecordMap" type="com.leevan.pojo.attendance">
+        <result property="id" column="id"></result>
+        <result property="userId" column="user_id"></result>
+        <result property="Record" column="record"></result>
+        <result property="orientation" column="orientation"></result>
+        <result property="epc" column="epc"></result>
+    </resultMap>
+
+
+
+<!--    查询当天所有记录的resultMap-->
+    <resultMap id="baseResultMap" type="com.leevan.pojo.user">
+        <collection  property="attendanceList" ofType="com.leevan.pojo.attendance"  column="{epc=epc,record=record}" select="selectCurrentSubRecord"></collection>
+    </resultMap>
+
+<!--    查询给定日期范围的resultMap-->
+    <resultMap id="userAttendanceBySelectDateMap" type="com.leevan.pojo.user">
+        <collection property="attendanceList" ofType="com.leevan.pojo.attendance" column="{epc=epc,fromDate=fromDate,toDate=toDate}" select="selectRangeDateSubRecord"></collection>
+    </resultMap>
+
+<!--   查询当天所有记录的resultMap的子查询-->
+    <select id="selectCurrentSubRecord"  resultMap="attendanceRecordMap">
+        select * from sys_attendance where epc=#{epc} and record like '%${record}%'
+    </select>
+
+<!--   查询当天所有记录的resultMap的父级查询-->
+    <select id="selectUserAttendanceRecord"  resultMap="baseResultMap">
+        select *,IFNULL(#{record},'') record  from sys_user where epc =#{epc}
+    </select>
+
+<!--  查询给定日期范围的resultMap的父查询-->
+    <select id="selectRangeDateParentRecord" resultMap="userAttendanceBySelectDateMap">
+        select * ,IFNULL(#{fromDate},'') fromDate,IFNULL(#{toDate},'') toDate from sys_user where epc=#{epc}
+    </select>
+
+<!--   查询给定日期范围的resultMap的子查询-->
+    <select id="selectRangeDateSubRecord" resultMap="attendanceRecordMap">
+        select * from sys_attendance where epc=#{epc} and record between '${fromDate}' and '${toDate}'
+    </select>
+
+    <select id="countDays"  resultType="java.lang.Integer">
+<!--        SELECT epc, left(`date`,7) as `month`, COUNT(1) as `day`-->
+<!--        from-->
+<!--        (-->
+<!--        select epc, LEFT(record,10) as `date`-->
+<!--        from sys_attendance-->
+<!--        where left(NOW(),7) = left(record,7)-->
+<!--        GROUP BY epc, `date`-->
+<!--        ) t-->
+<!--        GROUP BY epc, `month`-->
+<!--        having epc = #{epc};-->
+        SELECT COUNT(1) as `day`
+        from
+        (
+        select epc, LEFT(record,10) as `date`
+        from sys_attendance
+        where left(NOW(),7) = left(record,7)
+        GROUP BY epc, `date`
+        ) t
+        WHERE epc = #{epc};
+    </select>
+
+    <select id="countDaysbyMonth" resultType="com.leevan.vo.countDaysbyMonthVo">
+        SELECT sys_user.nick_name, sys_user.identity,t.epc, left(`date`,7) as `month`, COUNT(1) as `day`
+        from
+        (
+        select epc, LEFT(record,10) as `date`
+        from sys_attendance
+        where left(NOW(),7) = left(record,7)
+        GROUP BY epc, `date`
+        ) t LEFT JOIN sys_user on sys_user.epc=t.epc
+        GROUP BY epc, `month`
+        HAVING nick_name IS NOT NULL
+    </select>
+
+
+</mapper>

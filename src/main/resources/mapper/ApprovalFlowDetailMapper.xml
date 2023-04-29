@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leevan.mapper.ApprovalFlowDetailMapper">
+    
+    <update id="updateAllByFlowNo">
+        update sys_approval_flow_detail
+        <set>
+
+            <if test="approvalTime!=null">
+                approval_time=#{approvalTime},
+            </if>
+            <if test="opinion!=null">
+                opinion=#{opinion},
+            </if>
+            <if test="status!=null">
+                status=#{status},
+            </if>
+            <if test="comments!=null">
+                comments=#{comments}
+            </if>
+        </set>
+        where flow_no=#{flowNo} and user_id=#{userId}
+
+    </update>
+    
+    
+    <resultMap id="AskForLeaveProcessAndApprovalResultMapper" type="com.leevan.pojo.procedureSubmit">
+
+        <id property="flowNo" column="flow_no" ></id>
+
+        <result property="nickName" column="nick_name"></result>
+
+        <result property="type" column="type"></result>
+
+        <result property="userId" column="user_id"></result>
+
+        <result property="startDate" column="start_date"></result>
+
+        <result property="startTime" column="start_time"></result>
+
+        <result property="endDate" column="end_date"></result>
+        
+        <result property="endTime" column="end_time"></result>
+
+        <result property="reason" column="reason"></result>
+        
+        <result property="status" column="status"></result>
+        <collection property="approvalFlowDetailList" ofType="com.leevan.pojo.approvalFlowDetail">
+            <result property="id" column="id"></result>
+            <result property="flowNo" column="flow_no"></result>
+            <result property="approvator" column="approver"></result>
+            <result property="userId" column="user_id"></result>
+            <result property="approvalTime" column="approval_time"></result>
+            <result property="opinion" column="opinion"></result>
+            <result property="status" column="status"></result>
+            <result property="comments" column="comments"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectSubmitAndApprovalResult" resultMap="AskForLeaveProcessAndApprovalResultMapper">
+        select submit.flow_no,submit.nick_name,submit.type,submit.user_id,submit.start_date,submit.start_time,submit.end_date,submit.end_time,submit.status,submit.reason,detail.*
+        from sys_procedure_submit as submit left join sys_approval_flow_detail as detail on submit.flow_no = detail.flow_no
+        where submit.user_id=#{userId}
+    </select>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leevan.mapper.MenuMapper">
+
+    <select id="findAll" resultType="com.leevan.pojo.menu">
+        select * from sys_menu
+    </select>
+
+    <insert id="save">
+        insert into sys_menu(menu_name,path,icon) values(#{menuName},#{path},#{icon})
+    </insert>
+
+    <update id="update">
+        update sys_menu
+        set menu_name=#{menuName},path=#{path},icon=#{icon} where id = #{id}
+    </update>
+
+
+    <select id="findMenuById" resultType="com.leevan.pojo.menu">
+        select * from sys_menu where id=#{id}
+    </select>
+
+</mapper>

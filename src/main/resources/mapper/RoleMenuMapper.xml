@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leevan.mapper.RoleMenuMapper">
+
+    <insert id="insert">
+        insert into sys_role_menu set role_id=#{roleId},menu_id=#{menuId}
+    </insert>
+
+    <select id="findRoleMenuByRoleId" resultType="java.lang.Integer">
+        select menu_id from sys_role_menu where role_id=#{roleId}
+    </select>
+
+    <delete id="delete" >
+        delete from sys_role_menu where role_id=#{roleId}
+    </delete>
+
+
+</mapper>
